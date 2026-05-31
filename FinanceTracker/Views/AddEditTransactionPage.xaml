@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FinanceTracker.ViewModels"
+             x:Class="FinanceTracker.Views.AddEditTransactionPage"
+             x:DataType="vm:AddEditTransactionViewModel"
+             Title="{Binding PageTitle}">
+
+    <ScrollView Padding="24,12,24,28">
+        <VerticalStackLayout Spacing="14" HorizontalOptions="Fill">
+
+            <!-- Income / Expense toggle -->
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAlt}, Dark={StaticResource SurfaceAltDark}}"
+                    StrokeThickness="0" Padding="4">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="14" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
+                    <Button Grid.Column="0" Text="− Expense"
+                            BackgroundColor="{Binding IsExpenseSelected, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsExpenseSelected, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontAttributes="Bold"
+                            Command="{Binding SetTypeCommand}"
+                            CommandParameter="Expense"
+                            MinimumHeightRequest="40"
+                            CornerRadius="10" />
+                    <Button Grid.Column="1" Text="+ Income"
+                            BackgroundColor="{Binding IsIncomeSelected, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsIncomeSelected, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontAttributes="Bold"
+                            Command="{Binding SetTypeCommand}"
+                            CommandParameter="Income"
+                            MinimumHeightRequest="40"
+                            CornerRadius="10" />
+                </Grid>
+            </Border>
+
+            <!-- Form card -->
+            <Border Style="{StaticResource CardBorder}" Padding="22,18">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Amount + Date side by side -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="AMOUNT" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Entry x:Name="AmountEntry"
+                                           Placeholder="0.00"
+                                           Text="{Binding Amount}"
+                                           FontSize="18" FontAttributes="Bold"
+                                           Keyboard="Numeric"
+                                           ReturnType="Done"
+                                           ReturnCommand="{Binding SaveCommand}" />
+                                    <Label Grid.Column="1" Text="€" FontSize="18" FontAttributes="Bold"
+                                           VerticalTextAlignment="Center" Margin="6,0,0,0"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="DATE" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <DatePicker Date="{Binding Date}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Category -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CATEGORY" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource FieldBorder}">
+                            <Picker ItemsSource="{Binding Categories}"
+                                    SelectedItem="{Binding SelectedCategory}"
+                                    ItemDisplayBinding="{Binding Name}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Note -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="NOTE (OPTIONAL)" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource FieldBorder}" Padding="12,8">
+                            <Editor Placeholder="Add a note..."
+                                    Text="{Binding Note}"
+                                    HeightRequest="80" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Actions -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,4,0,0">
+                <Button Text="Cancel" Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButton}" />
+                <Button Grid.Column="1" Text="Save" Command="{Binding SaveCommand}"
+                        Style="{StaticResource PrimaryButton}" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

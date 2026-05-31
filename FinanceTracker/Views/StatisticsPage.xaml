@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:controls="clr-namespace:FinanceTracker.Controls"
+             x:Class="FinanceTracker.Views.StatisticsPage"
+             x:DataType="vm:StatisticsViewModel"
+             Title="Statistics">
+
+    <Shell.TitleView>
+        <Label Text="Statistics" FontSize="18" FontAttributes="Bold"
+               VerticalTextAlignment="Center" Padding="8,0"
+               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+    </Shell.TitleView>
+
+    <Grid>
+    <ScrollView>
+        <VerticalStackLayout Padding="28,20,28,36" Spacing="16"
+                             HorizontalOptions="Fill">
+
+            <!-- Period selector -->
+            <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAlt}, Dark={StaticResource SurfaceAltDark}}"
+                    StrokeThickness="0" Padding="4">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="4">
+                    <Button Text="This Month"
+                            Command="{Binding SetPeriodCommand}" CommandParameter="ThisMonth"
+                            BackgroundColor="{Binding IsThisMonth, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsThisMonth, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontSize="12" FontAttributes="Bold"
+                            Padding="4,8" MinimumHeightRequest="36"
+                            CornerRadius="10" />
+                    <Button Grid.Column="1" Text="Last Month"
+                            Command="{Binding SetPeriodCommand}" CommandParameter="LastMonth"
+                            BackgroundColor="{Binding IsLastMonth, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsLastMonth, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontSize="12" FontAttributes="Bold"
+                            Padding="4,8" MinimumHeightRequest="36"
+                            CornerRadius="10" />
+                    <Button Grid.Column="2" Text="6 Months"
+                            Command="{Binding SetPeriodCommand}" CommandParameter="Last6Months"
+                            BackgroundColor="{Binding IsLast6Months, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsLast6Months, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontSize="12" FontAttributes="Bold"
+                            Padding="4,8" MinimumHeightRequest="36"
+                            CornerRadius="10" />
+                    <Button Grid.Column="3" Text="All Time"
+                            Command="{Binding SetPeriodCommand}" CommandParameter="AllTime"
+                            BackgroundColor="{Binding IsAllTime, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                            TextColor="{Binding IsAllTime, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                            FontSize="12" FontAttributes="Bold"
+                            Padding="4,8" MinimumHeightRequest="36"
+                            CornerRadius="10" />
+                </Grid>
+            </Border>
+
+            <!-- Summary row — 5 stats -->
+            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="12">
+                <Border Style="{StaticResource CardBorder}" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="INCOME" Style="{StaticResource StatLabel}" />
+                        <Label Text="{Binding TotalIncome, StringFormat='{0:N2} €'}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource Success}" />
+                        <Label Text="{Binding PeriodLabel}" FontSize="10"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="EXPENSES" Style="{StaticResource StatLabel}" />
+                        <Label Text="{Binding TotalExpense, StringFormat='{0:N2} €'}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource Danger}" />
+                        <Label Text="{Binding PeriodLabel}" FontSize="10"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource CardBorder}" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="NET" Style="{StaticResource StatLabel}" />
+                        <Label Text="{Binding NetChange, StringFormat='{0:N2} €'}"
+                               FontSize="18" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="3" Style="{StaticResource CardBorder}" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="SAVINGS RATE" Style="{StaticResource StatLabel}" />
+                        <Label Text="{Binding SavingsRate, StringFormat='{0:0.#}%'}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="{Binding IsSavingsPositive, Converter={StaticResource BoolToSuccessDangerColorConverter}}" />
+                        <Label Text="of income" FontSize="10"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="4" Style="{StaticResource CardBorder}" Padding="16,14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="TRANSACTIONS" Style="{StaticResource StatLabel}" />
+                        <Label Text="{Binding TransactionCount}"
+                               FontSize="18" FontAttributes="Bold" />
+                        <Label Text="{Binding PeriodLabel}" FontSize="10"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Charts row — donut (left) + monthly trend (right), equal columns -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+
+                <!-- Expense breakdown donut -->
+                <Border Style="{StaticResource CardBorder}" Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="EXPENSES BY CATEGORY" Style="{StaticResource SectionTitle}" />
+
+                        <Grid IsVisible="{Binding HasExpenses}"
+                              ColumnDefinitions="Auto,*" ColumnSpacing="20">
+                            <controls:DonutChartView WidthRequest="200" HeightRequest="200"
+                                                     Slices="{Binding ExpenseSlices}"
+                                                     CenterValue="{Binding TotalExpense, StringFormat='{0:N0} €'}"
+                                                     CenterLabel="Total" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"
+                                                 BindableLayout.ItemsSource="{Binding LegendItems}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="controls:ChartSlice">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                            <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                                     Color="{Binding Color}"
+                                                     VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Label}"
+                                                   FontSize="13" VerticalTextAlignment="Center"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   LineBreakMode="TailTruncation" />
+                                            <Label Grid.Column="2" Text="{Binding Value, StringFormat='{0:N0} €'}"
+                                                   FontSize="13" FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   VerticalTextAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout IsVisible="{Binding HasExpenses, Converter={StaticResource InverseBoolConverter}}"
+                                             Spacing="4" HorizontalOptions="Center" Padding="0,16">
+                            <Label Text="📊" FontSize="32" HorizontalOptions="Center" />
+                            <Label Text="No expense data for this period"
+                                   FontSize="13" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Monthly trend -->
+                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="MONTHLY TREND (6 MONTHS)" Style="{StaticResource SectionTitle}"
+                                   VerticalTextAlignment="Center" />
+                            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                         Color="{StaticResource Success}" VerticalOptions="Center" />
+                                <Label Text="Income" FontSize="11"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                       VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                                <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                         Color="{StaticResource Danger}" VerticalOptions="Center" />
+                                <Label Text="Expense" FontSize="11"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                       VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <controls:BarChartView HeightRequest="200" Groups="{Binding TrendGroups}" />
+                        <Label IsVisible="{Binding HasTrendData, Converter={StaticResource InverseBoolConverter}}"
+                               Text="Not enough data yet — add transactions to see trends."
+                               FontSize="12" HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+
+            <!-- Income by category + Cumulative balance row -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+
+                <!-- Income breakdown donut -->
+                <Border Style="{StaticResource CardBorder}" Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="INCOME BY CATEGORY" Style="{StaticResource SectionTitle}" />
+
+                        <Grid IsVisible="{Binding HasIncome}"
+                              ColumnDefinitions="Auto,*" ColumnSpacing="20">
+                            <controls:DonutChartView WidthRequest="200" HeightRequest="200"
+                                                     Slices="{Binding IncomeSlices}"
+                                                     CenterValue="{Binding TotalIncome, StringFormat='{0:N0} €'}"
+                                                     CenterLabel="Total" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"
+                                                 BindableLayout.ItemsSource="{Binding IncomeLegendItems}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="controls:ChartSlice">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                            <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                                     Color="{Binding Color}"
+                                                     VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding Label}"
+                                                   FontSize="13" VerticalTextAlignment="Center"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   LineBreakMode="TailTruncation" />
+                                            <Label Grid.Column="2" Text="{Binding Value, StringFormat='{0:N0} €'}"
+                                                   FontSize="13" FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   VerticalTextAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout IsVisible="{Binding HasIncome, Converter={StaticResource InverseBoolConverter}}"
+                                             Spacing="4" HorizontalOptions="Center" Padding="0,16">
+                            <Label Text="💰" FontSize="32" HorizontalOptions="Center" />
+                            <Label Text="No income data for this period"
+                                   FontSize="13" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Cumulative balance over the period -->
+                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Label Text="CUMULATIVE NET (PERIOD)" Style="{StaticResource SectionTitle}"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding NetChange, StringFormat='{0:N0} €'}"
+                                   FontAttributes="Bold" FontSize="13"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{Binding IsSavingsPositive, Converter={StaticResource BoolToSuccessDangerColorConverter}}" />
+                        </Grid>
+                        <controls:LineChartView HeightRequest="200"
+                                                Points="{Binding DailyBalancePoints}"
+                                                IsVisible="{Binding HasDailySeries}" />
+                        <Label IsVisible="{Binding HasDailySeries, Converter={StaticResource InverseBoolConverter}}"
+                               Text="Need at least two days of activity to chart this."
+                               FontSize="12" HorizontalOptions="Center" Padding="0,40"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+
+            <!-- Spending by day of week -->
+            <Border Style="{StaticResource CardBorder}" Padding="20">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="SPENDING BY DAY OF WEEK" Style="{StaticResource SectionTitle}" />
+                    <controls:BarChartView HeightRequest="180"
+                                           Groups="{Binding DayOfWeekGroups}"
+                                           IsVisible="{Binding HasDayOfWeekData}" />
+                    <Label IsVisible="{Binding HasDayOfWeekData, Converter={StaticResource InverseBoolConverter}}"
+                           Text="No expenses in this period yet."
+                           FontSize="12" HorizontalOptions="Center" Padding="0,30"
+                           TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Top spending + Top income breakdowns -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                <Border Style="{StaticResource CardBorder}" Padding="20"
+                        IsVisible="{Binding HasExpenses}">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="TOP SPENDING CATEGORIES" Style="{StaticResource SectionTitle}" />
+                        <VerticalStackLayout Spacing="14"
+                                             BindableLayout.ItemsSource="{Binding TopCategories}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="controls:CategoryBreakdownItem">
+                                    <Grid ColumnDefinitions="Auto,*,90,44" ColumnSpacing="12"
+                                          RowDefinitions="Auto,Auto" RowSpacing="6">
+                                        <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                                 Color="{Binding Color}" VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding Label, Converter={StaticResource CategoryToIconConverter}}"
+                                                   FontSize="15" VerticalTextAlignment="Center" />
+                                            <Label Text="{Binding Label}" FontSize="13" FontAttributes="Bold"
+                                                   VerticalTextAlignment="Center"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   LineBreakMode="TailTruncation" />
+                                        </HorizontalStackLayout>
+                                        <Label Grid.Column="2" Text="{Binding Amount, StringFormat='{0:N0} €'}"
+                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                               HorizontalTextAlignment="End"
+                                               VerticalTextAlignment="Center" />
+                                        <Label Grid.Column="3" Text="{Binding Percentage, StringFormat='{0:0}%'}"
+                                               FontSize="11" HorizontalTextAlignment="End"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                              HeightRequest="6" VerticalOptions="Center">
+                                            <BoxView Color="{AppThemeBinding Light=#E2E8F0, Dark=#1E293B}"
+                                                     CornerRadius="3" />
+                                            <BoxView Color="{Binding Color}" CornerRadius="3"
+                                                     HorizontalOptions="Start"
+                                                     WidthRequest="{Binding Percentage, Converter={StaticResource PercentToWidthConverter}}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="20"
+                        IsVisible="{Binding HasIncome}">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="TOP INCOME CATEGORIES" Style="{StaticResource SectionTitle}" />
+                        <VerticalStackLayout Spacing="14"
+                                             BindableLayout.ItemsSource="{Binding TopIncomeCategories}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="controls:CategoryBreakdownItem">
+                                    <Grid ColumnDefinitions="Auto,*,90,44" ColumnSpacing="12"
+                                          RowDefinitions="Auto,Auto" RowSpacing="6">
+                                        <BoxView WidthRequest="10" HeightRequest="10" CornerRadius="3"
+                                                 Color="{Binding Color}" VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding Label, Converter={StaticResource CategoryToIconConverter}}"
+                                                   FontSize="15" VerticalTextAlignment="Center" />
+                                            <Label Text="{Binding Label}" FontSize="13" FontAttributes="Bold"
+                                                   VerticalTextAlignment="Center"
+                                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                                   LineBreakMode="TailTruncation" />
+                                        </HorizontalStackLayout>
+                                        <Label Grid.Column="2" Text="{Binding Amount, StringFormat='{0:N0} €'}"
+                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                               HorizontalTextAlignment="End"
+                                               VerticalTextAlignment="Center" />
+                                        <Label Grid.Column="3" Text="{Binding Percentage, StringFormat='{0:0}%'}"
+                                               FontSize="11" HorizontalTextAlignment="End"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                              HeightRequest="6" VerticalOptions="Center">
+                                            <BoxView Color="{AppThemeBinding Light=#E2E8F0, Dark=#1E293B}"
+                                                     CornerRadius="3" />
+                                            <BoxView Color="{Binding Color}" CornerRadius="3"
+                                                     HorizontalOptions="Start"
+                                                     WidthRequest="{Binding Percentage, Converter={StaticResource PercentToWidthConverter}}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="40"
+                       HeightRequest="40" />
+    </Grid>
+</ContentPage>

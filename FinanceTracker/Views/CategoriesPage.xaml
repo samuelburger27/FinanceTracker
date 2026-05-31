@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:models="clr-namespace:FinanceTracker.Models"
+             x:Class="FinanceTracker.Views.CategoriesPage"
+             x:DataType="vm:CategoriesViewModel"
+             Title="Categories">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="28,20,28,32" Spacing="16" HorizontalOptions="Fill">
+
+                <!-- Add new category -->
+                <Border Style="{StaticResource CardBorder}" Padding="18,16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="ADD CATEGORY" Style="{StaticResource SectionTitle}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry Placeholder="e.g. Coffee, Pets, Travel..."
+                                       Text="{Binding NewCategoryName}"
+                                       ReturnType="Done"
+                                       ReturnCommand="{Binding AddCategoryCommand}"
+                                       MaxLength="100" />
+                            </Border>
+                            <Button Grid.Column="1"
+                                    Text="＋ Add"
+                                    Command="{Binding AddCategoryCommand}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                    TextColor="White"
+                                    FontSize="13" FontAttributes="Bold"
+                                    CornerRadius="10"
+                                    Padding="16,8"
+                                    MinimumHeightRequest="40"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- User categories -->
+                <Label Text="YOUR CATEGORIES" Style="{StaticResource SectionTitle}" Margin="4,4,4,0" />
+
+                <!-- Empty state -->
+                <Border IsVisible="{Binding HasNoUserCategories}"
+                        Style="{StaticResource CardBorder}" Padding="24">
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label Text="🗂️" FontSize="32" HorizontalOptions="Center" />
+                        <Label Text="No custom categories yet"
+                               FontAttributes="Bold" FontSize="14"
+                               HorizontalOptions="Center" />
+                        <Label Text="Add one above to use it on transactions."
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- User categories list -->
+                <VerticalStackLayout IsVisible="{Binding HasUserCategories}"
+                                     Spacing="6"
+                                     BindableLayout.ItemsSource="{Binding UserCategories}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Category">
+                            <Border Style="{StaticResource CardBorder}" Padding="14,10" Margin="0,0,0,0">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+                                    <Label Text="{Binding Name, Converter={StaticResource CategoryToIconConverter}}"
+                                           FontSize="22"
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           FontAttributes="Bold" FontSize="14"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Button Grid.Column="2"
+                                            Text="Rename"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}, Path=RenameCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource SecondaryButton}"
+                                            FontSize="12"
+                                            Padding="12,6"
+                                            MinimumHeightRequest="34"
+                                            VerticalOptions="Center" />
+                                    <Button Grid.Column="3"
+                                            Text="✕"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="12" FontAttributes="Bold"
+                                            BackgroundColor="Transparent"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                            WidthRequest="32" HeightRequest="32"
+                                            CornerRadius="6" Padding="0"
+                                            MinimumHeightRequest="32"
+                                            VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Predefined (read-only) -->
+                <Label Text="PREDEFINED" Style="{StaticResource SectionTitle}" Margin="4,8,4,0" />
+
+                <CollectionView ItemsSource="{Binding PredefinedCategories}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Category">
+                            <Border Style="{StaticResource CardBorder}" Padding="14,10">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Label Text="{Binding Name, Converter={StaticResource CategoryToIconConverter}}"
+                                           FontSize="22"
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           FontAttributes="Bold" FontSize="14"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Grid.Column="2"
+                                           Text="built-in"
+                                           FontSize="10"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           WidthRequest="40"
+                           HeightRequest="40" />
+    </Grid>
+</ContentPage>

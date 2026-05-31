@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FinanceTracker.ViewModels"
+             x:Class="FinanceTracker.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.TabBarIsVisible="False"
+             Title="Login">
+
+    <Grid>
+        <ScrollView>
+            <Grid VerticalOptions="Center" HorizontalOptions="Center"
+                  WidthRequest="380" Padding="24,40">
+                <VerticalStackLayout Spacing="18">
+
+                    <!-- Brand badge -->
+                    <Border WidthRequest="76" HeightRequest="76"
+                            HorizontalOptions="Center"
+                            Background="{StaticResource HeroGradient}"
+                            StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="22" />
+                        </Border.StrokeShape>
+                        <Label Text="💸" FontSize="36"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+
+                    <Label Text="Expense Manager"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Track what comes in. Understand what goes out."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,-10,0,10" />
+
+                    <!-- Form card -->
+                    <Border Style="{StaticResource CardBorder}" Padding="18">
+                        <VerticalStackLayout Spacing="12">
+
+                            <Label Text="USERNAME" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="UsernameEntry"
+                                       Placeholder="Enter your username"
+                                       Text="{Binding Username}"
+                                       ReturnType="Next"
+                                       IsSpellCheckEnabled="False"
+                                       IsTextPredictionEnabled="False" />
+                            </Border>
+
+                            <Label Text="PASSWORD" Style="{StaticResource FieldLabel}" Margin="4,6,0,-6" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="PasswordEntry"
+                                       Placeholder="Enter your password"
+                                       Text="{Binding Password}"
+                                       IsPassword="True"
+                                       ReturnType="Go"
+                                       ReturnCommand="{Binding SubmitCommand}" />
+                            </Border>
+
+                            <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                                    BackgroundColor="{StaticResource DangerSoft}"
+                                    StrokeThickness="0"
+                                    Padding="12,8"
+                                    Margin="0,4,0,0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Label Text="{Binding ErrorMessage}"
+                                       TextColor="{StaticResource Danger}"
+                                       FontSize="13"
+                                       HorizontalTextAlignment="Center" />
+                            </Border>
+
+                            <Button Text="{Binding ActionButtonText}"
+                                    Command="{Binding SubmitCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Margin="0,8,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Button Text="{Binding ToggleButtonText}"
+                            Command="{Binding ToggleModeCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                            FontSize="13" />
+
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:models="clr-namespace:FinanceTracker.Models"
+             x:Class="FinanceTracker.Views.MainPage"
+             x:DataType="vm:TransactionListViewModel"
+             Title="Dashboard">
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8" Padding="8,0,4,0">
+            <Label Text="Dashboard" FontSize="18" FontAttributes="Bold"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+            <Button Grid.Column="1"
+                    Text="⤓  Import"
+                    Command="{Binding ImportCsvCommand}"
+                    Style="{StaticResource SecondaryButton}"
+                    FontSize="13"
+                    Padding="12,6"
+                    MinimumHeightRequest="34"
+                    VerticalOptions="Center" />
+            <Button Grid.Column="2"
+                    Text="⤒  Export"
+                    Command="{Binding ExportCsvCommand}"
+                    Style="{StaticResource SecondaryButton}"
+                    FontSize="13"
+                    Padding="12,6"
+                    MinimumHeightRequest="34"
+                    VerticalOptions="Center" />
+            <Button Grid.Column="3"
+                    Text="＋  Add Transaction"
+                    Command="{Binding AddTransactionCommand}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    TextColor="White"
+                    FontSize="13" FontAttributes="Bold"
+                    CornerRadius="8"
+                    Padding="14,6"
+                    MinimumHeightRequest="34"
+                    VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid>
+    <ScrollView>
+        <VerticalStackLayout Padding="28,20,28,32" Spacing="16"
+                             HorizontalOptions="Fill">
+
+            <!-- Hero balance card — 3-column horizontal layout -->
+            <Border Background="{StaticResource HeroGradient}" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Grid Padding="32,22" ColumnDefinitions="*,*,*" ColumnSpacing="0">
+
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="TOTAL BALANCE" FontSize="10" FontAttributes="Bold"
+                               TextColor="#E0E7FF" CharacterSpacing="2"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Balance, StringFormat='{0:N2} €'}"
+                               FontSize="30" FontAttributes="Bold" TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                        <Label Text="INCOME (MONTH)" FontSize="10" FontAttributes="Bold"
+                               TextColor="#C7D2FE" CharacterSpacing="1.5"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding MonthlyIncome, StringFormat='{0:N2} €'}"
+                               FontSize="22" FontAttributes="Bold" TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                        <Label Text="EXPENSES (MONTH)" FontSize="10" FontAttributes="Bold"
+                               TextColor="#C7D2FE" CharacterSpacing="1.5"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding MonthlyExpenses, StringFormat='{0:N2} €'}"
+                               FontSize="22" FontAttributes="Bold" TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                </Grid>
+            </Border>
+
+            <!-- Transactions heading -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="4,6,4,0">
+                <Label Text="RECENT TRANSACTIONS" Style="{StaticResource SectionTitle}"
+                       VerticalTextAlignment="Center" />
+                <Label Grid.Column="1"
+                       Text="{Binding FilteredCount, StringFormat='{0} total'}"
+                       FontSize="11"
+                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!-- Filter card -->
+            <Border Style="{StaticResource CardBorder}"
+                    Padding="18,16">
+                <VerticalStackLayout Spacing="14">
+
+                    <!-- Search -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="SEARCH NOTE" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource FieldBorder}">
+                            <Entry Placeholder="Search description..."
+                                   Text="{Binding SearchText}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Type chips -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="TYPE" Style="{StaticResource FieldLabel}" />
+                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAlt}, Dark={StaticResource SurfaceAltDark}}"
+                                StrokeThickness="0" Padding="4">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                                <Button Grid.Column="0" Text="All"
+                                        Command="{Binding SetFilterTypeCommand}" CommandParameter="All"
+                                        BackgroundColor="{Binding IsFilterTypeAll, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                                        TextColor="{Binding IsFilterTypeAll, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                                        FontAttributes="Bold" FontSize="13"
+                                        MinimumHeightRequest="36" CornerRadius="9" />
+                                <Button Grid.Column="1" Text="+ Income"
+                                        Command="{Binding SetFilterTypeCommand}" CommandParameter="Income"
+                                        BackgroundColor="{Binding IsFilterTypeIncome, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                                        TextColor="{Binding IsFilterTypeIncome, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                                        FontAttributes="Bold" FontSize="13"
+                                        MinimumHeightRequest="36" CornerRadius="9" />
+                                <Button Grid.Column="2" Text="− Expense"
+                                        Command="{Binding SetFilterTypeCommand}" CommandParameter="Expense"
+                                        BackgroundColor="{Binding IsFilterTypeExpense, Converter={StaticResource BoolToSurfaceColorConverter}}"
+                                        TextColor="{Binding IsFilterTypeExpense, Converter={StaticResource BoolToPrimaryTextColorConverter}}"
+                                        FontAttributes="Bold" FontSize="13"
+                                        MinimumHeightRequest="36" CornerRadius="9" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Category -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CATEGORY" Style="{StaticResource FieldLabel}" />
+                        <Border Style="{StaticResource FieldBorder}">
+                            <Picker ItemsSource="{Binding FilterCategories}"
+                                    SelectedItem="{Binding SelectedFilterCategory}"
+                                    ItemDisplayBinding="{Binding Name}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Amount range -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="AMOUNT RANGE" Style="{StaticResource FieldLabel}" />
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry Placeholder="Min"
+                                       Keyboard="Numeric"
+                                       Text="{Binding MinAmountText}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="–"
+                                   FontSize="16"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                            <Border Grid.Column="2" Style="{StaticResource FieldBorder}">
+                                <Entry Placeholder="Max"
+                                       Keyboard="Numeric"
+                                       Text="{Binding MaxAmountText}" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- Date range -->
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Label Text="DATE RANGE" Style="{StaticResource FieldLabel}"
+                                   VerticalTextAlignment="Center" />
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding IsDateFilterEnabled}"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8"
+                              IsEnabled="{Binding IsDateFilterEnabled}">
+                            <Border Style="{StaticResource FieldBorder}">
+                                <DatePicker Date="{Binding StartDate}" Format="MMM dd, yyyy" />
+                            </Border>
+                            <Label Grid.Column="1" Text="–"
+                                   FontSize="16"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                            <Border Grid.Column="2" Style="{StaticResource FieldBorder}">
+                                <DatePicker Date="{Binding EndDate}" Format="MMM dd, yyyy" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- Reset button -->
+                    <Button Text="Reset filters"
+                            Command="{Binding ResetFiltersCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            FontSize="13"
+                            MinimumHeightRequest="40" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Transaction list -->
+            <CollectionView ItemsSource="{Binding Transactions}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Border Style="{StaticResource CardBorder}" Padding="32">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="📭" FontSize="40" HorizontalOptions="Center" />
+                            <Label Text="No transactions found"
+                                   FontAttributes="Bold" FontSize="16"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Try adjusting filters or add a new transaction."
+                                   FontSize="13"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Transaction">
+                        <Border Style="{StaticResource CardBorder}" Padding="14,10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionListViewModel}}, Path=EditTransactionCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="14">
+
+                                <!-- Icon badge -->
+                                <Border WidthRequest="40" HeightRequest="40"
+                                        BackgroundColor="{Binding Type, Converter={StaticResource TransactionTypeToSoftColorConverter}}"
+                                        StrokeThickness="0" VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Category.Name, Converter={StaticResource CategoryToIconConverter}}"
+                                           FontSize="20"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Category + date + note -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Category.Name}" FontAttributes="Bold" FontSize="14"
+                                           LineBreakMode="TailTruncation" />
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}"
+                                               FontSize="11"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                                        <Label Text="{Binding Note}" FontSize="11"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                               IsVisible="{Binding Note, Converter={StaticResource StringToBoolConverter}}"
+                                               LineBreakMode="TailTruncation" MaxLines="1" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Amount -->
+                                <HorizontalStackLayout Grid.Column="2" Spacing="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Type, Converter={StaticResource TransactionTypeToSignConverter}}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           VerticalTextAlignment="Center"
+                                           TextColor="{Binding Type, Converter={StaticResource TransactionTypeToColorConverter}}" />
+                                    <Label Text="{Binding Amount, StringFormat='{0:N2} €'}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           VerticalTextAlignment="Center"
+                                           TextColor="{Binding Type, Converter={StaticResource TransactionTypeToColorConverter}}" />
+                                </HorizontalStackLayout>
+
+                                <!-- Delete button -->
+                                <Button Grid.Column="3"
+                                        Text="✕"
+                                        FontSize="11" FontAttributes="Bold"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                        WidthRequest="30" HeightRequest="30"
+                                        CornerRadius="6" Padding="0"
+                                        MinimumHeightRequest="30"
+                                        HorizontalOptions="Center" VerticalOptions="Center"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionListViewModel}}, Path=DeleteTransactionCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Pagination footer -->
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"
+                  Margin="0,4,0,0"
+                  IsVisible="{Binding HasMultiplePages}">
+                <Button Grid.Column="0"
+                        Text="‹ Prev"
+                        Command="{Binding PreviousPageCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        FontSize="13"
+                        Padding="16,8"
+                        MinimumHeightRequest="38" />
+                <Label Grid.Column="1"
+                       Text="{Binding PageDisplay}"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       FontAttributes="Bold"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                <Button Grid.Column="2"
+                        Text="Next ›"
+                        Command="{Binding NextPageCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        FontSize="13"
+                        Padding="16,8"
+                        MinimumHeightRequest="38" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="40"
+                       HeightRequest="40" />
+    </Grid>
+
+</ContentPage>

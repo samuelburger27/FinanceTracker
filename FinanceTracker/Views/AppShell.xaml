@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="FinanceTracker.Views.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:FinanceTracker.Views"
+    FlyoutBehavior="Locked"
+    FlyoutWidth="220"
+    Title="FinanceTracker">
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}"
+              Padding="18,24,18,20" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Border WidthRequest="42" HeightRequest="42"
+                    Background="{StaticResource HeroGradient}"
+                    StrokeThickness="0" VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Label Text="💸" FontSize="20"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                <Label Text="Expense Manager"
+                       FontSize="14" FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                <Label Text="Personal finance"
+                       FontSize="11"
+                       TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutFooter>
+        <Grid Padding="12,8,12,18" RowDefinitions="Auto,Auto" RowSpacing="8"
+              BackgroundColor="{AppThemeBinding Light={StaticResource Surface}, Dark={StaticResource SurfaceDark}}">
+            <BoxView Grid.Row="0" HeightRequest="1"
+                     Color="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray900}}" />
+            <Button Grid.Row="1" x:Name="LogoutButton"
+                    Text="↩  Log out"
+                    Clicked="OnLogoutClicked"
+                    HorizontalOptions="Fill"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                    FontSize="13" FontAttributes="Bold"
+                    MinimumHeightRequest="36"
+                    CornerRadius="8" />
+        </Grid>
+    </Shell.FlyoutFooter>
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage"
+        FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled" />
+
+    <FlyoutItem Title="📊  Dashboard" Route="MainPage">
+        <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="📈  Statistics" Route="StatisticsPage">
+        <ShellContent ContentTemplate="{DataTemplate local:StatisticsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="🗂️  Categories" Route="CategoriesPage">
+        <ShellContent ContentTemplate="{DataTemplate local:CategoriesPage}" />
+    </FlyoutItem>
+
+</Shell>
